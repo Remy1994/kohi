@@ -1,5 +1,6 @@
 #include "logger.h"
 #include "asserts.h"
+#include "platform/platform.h"
 
 // TODO: temporary
 #include <stdio.h>
@@ -21,7 +22,7 @@ void shutdown_logging() {
 
 void log_output(log_level level, const char* message, ...) {
     const char* level_strings[] = {"[FATAL]: ", "[ERROR]: ", "[WARN]:  ", "[INFO]:  ", "[DEBUG]: ", "[TRACE]: "};
-    // b8 is_error = level < LOG_LEVEL_WARN;
+    b8 is_error = level < LOG_LEVEL_WARN;
 
     char out_message[32000-100];
     memset(out_message, 0, sizeof(out_message));
@@ -35,5 +36,9 @@ void log_output(log_level level, const char* message, ...) {
     memset(full_message, 0, sizeof(full_message));
     snprintf(full_message, sizeof(full_message), "%s%s\n", level_strings[level], out_message);
 
-    printf("%s", full_message);
+    if (is_error) {
+        platform_console_write_error(full_message, level);
+    } else {
+        platform_console_write(full_message, level);
+    }
 }
