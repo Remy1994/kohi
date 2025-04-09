@@ -2,10 +2,13 @@
 
 #include "game_types.h"
 #include "core/logger.h"
+#include "core/kmemory.h"
 
 extern b8 create_game(game* out_game);
 
 int main(void) {
+    initialize_memory();
+
     game game_inst;
     if (!create_game(&game_inst)) {
         KFATAL("Failed to create game!");
@@ -26,6 +29,8 @@ int main(void) {
         KINFO("Application did not shutdown gracefully.");
         return 2;
     }
+    
+    shutdown_memory();
     
     return 0;
 }

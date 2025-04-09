@@ -1,6 +1,6 @@
 #include <entry.h>
 #include "game.h"
-#include <platform/platform.h>
+#include <core/kmemory.h>
 
 b8 create_game(game* game_inst) {
     game_inst->app_config.name = "Kohi Engine Testbed";
@@ -14,7 +14,8 @@ b8 create_game(game* game_inst) {
     game_inst->render = game_render;
     game_inst->update = game_update;
 
-    game_inst->state = platform_allocate(sizeof(game_state), FALSE);
+    game_inst->state = kallocate(sizeof(game_state), MEMORY_TAG_GAME);
 
+    
     return TRUE;
 }
