@@ -66,6 +66,9 @@
         "defines.h": "c",
         "vulkan_types.inl": "c",
         "system_error": "cpp",
-        "stdarg.h": "c"
+        "stdarg.h": "c",
+        "xlocbuf": "c",
+        "application.h": "c",
+        "entry.h": "c"
     }
 }
