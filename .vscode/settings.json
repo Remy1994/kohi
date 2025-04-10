@@ -69,6 +69,8 @@
         "stdarg.h": "c",
         "xlocbuf": "c",
         "application.h": "c",
-        "entry.h": "c"
+        "entry.h": "c",
+        "vector": "cpp",
+        "xstring": "cpp"
     }
 }
