@@ -4,6 +4,7 @@
 #include "core/logger.h"
 #include "core/kmemory.h"
 #include "core/event.h"
+#include "core/input.h"
 #include "platform/platform.h"
 
 typedef struct application_state {
@@ -45,6 +46,8 @@ b8 application_create(game* game_inst) {
         return FALSE;
     }
 
+    input_initialize();
+
     if (!platform_startup(
             &app_state.platform,
             game_inst->app_config.name,
@@ -78,6 +81,14 @@ b8 application_run() {
                 app_state.is_running = FALSE;
                 break;
             }
+
+            if (!app_state.game_inst->render(app_state.game_inst, 0.f)) {
+                KFATAL("Game render failed, shutting down.");
+                app_state.is_running = FALSE;
+                break;
+            }
+
+            input_update(0);
         }
         
     }
@@ -85,6 +96,7 @@ b8 application_run() {
     app_state.is_running = FALSE;
 
     platform_shutdown(&app_state.platform);
+    input_shutdown();
     event_shutdown();
     shutdown_logging();
     
