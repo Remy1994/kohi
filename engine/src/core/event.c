@@ -92,13 +92,13 @@ b8 event_fire(u16 code, void* sender, event_context context) {
         return FALSE;
     }
 
-    if (state.registered->events == 0) {
+    if (state.registered[code].events == 0) {
         return FALSE;
     }
 
-    u64 registered_count = darray_length(state.registered->events);
+    u64 registered_count = darray_length(state.registered[code].events);
     for (u64 i = 0; i < registered_count; ++i) {
-        registered_event e = state.registered->events[i];
+        registered_event e = state.registered[code].events[i];
         if (e.callback(code, sender, e.listener, context)) {
             return TRUE;
         }
