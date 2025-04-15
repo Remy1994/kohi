@@ -71,6 +71,7 @@
         "application.h": "c",
         "entry.h": "c",
         "vector": "cpp",
-        "xstring": "cpp"
+        "xstring": "cpp",
+        "renderer_backend.h": "c"
     }
 }

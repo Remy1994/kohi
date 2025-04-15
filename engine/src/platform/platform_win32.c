@@ -169,7 +169,7 @@ void platform_console_write_error(const char* message, u8 colour) {
 f64 platform_get_absolute_time() {
     LARGE_INTEGER now_time;
     QueryPerformanceCounter(&now_time);
-    return (f64)now_time.QuadPart * clock_frequency;
+    return (f64)(now_time.QuadPart - start_time.QuadPart) * clock_frequency;
 }
 
 void platform_sleep(u64 ms) {
