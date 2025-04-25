@@ -204,6 +204,8 @@ static void create(vulkan_context* context, u32 width, u32 height, vulkan_swapch
         TRUE,
         VK_IMAGE_ASPECT_DEPTH_BIT,
         &swapchain->depth_attachment);
+    
+    context->swapchain = *swapchain;
         
     KINFO("Swapchain created successfully.");
 }
