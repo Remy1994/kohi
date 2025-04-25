@@ -73,5 +73,6 @@
         "vector": "cpp",
         "xstring": "cpp",
         "renderer_backend.h": "c"
-    }
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

@@ -100,3 +100,5 @@ STATIC_ASSERT(sizeof(b32) == 4, "Expected b32 to be 4 bytes.");
 #define KAPI
 #endif
 #endif
+
+#define KCLAMP(value, min, max) ((value) < (min)) ? (min) : ((value) > (max)) ? (max) : (value)
