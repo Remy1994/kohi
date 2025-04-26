@@ -5,6 +5,7 @@
 
 #include "core/logger.h"
 #include "core/input.h"
+#include "core/event.h"
 
 #include "renderer/vulkan/vulkan_platform.h"
 #include "containers/darray.h"
@@ -205,8 +206,11 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARA
     switch (msg) {
         case WM_ERASEBKGND:
             return 1;
-        case WM_CLOSE:
-            return 0;
+        case WM_CLOSE: {
+            event_context context = {};
+            event_fire(EVENT_CODE_APPLICATION_QUIT, 0, context);
+            return TRUE;
+        }
         case WM_DESTROY:
             PostQuitMessage(0);
             return 0;

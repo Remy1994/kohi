@@ -5,10 +5,12 @@
 #include "vulkan_platform.h"
 #include "vulkan_swapchain.h"
 #include "vulkan_renderpass.h"
+#include "vulkan_command_buffer.h"
 
 #include "core/logger.h"
 #include "core/kstring.h"
 #include "core/asserts.h"
+#include "core/kmemory.h"
 
 #include "containers/darray.h"
 
@@ -22,7 +24,9 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
     void* pUserData);
 
-i32 find_memory_index(u32 type_filter, u32 property_flags);
+static i32 find_memory_index(u32 type_filter, u32 property_flags);
+
+static void create_command_buffers(renderer_backend* backend);
 
 b8 vulkan_renderer_backend_initialize(struct renderer_backend* backend, const char* application_name, struct platform_state* plat_state) {
     context.allocator = 0;
@@ -133,12 +137,25 @@ b8 vulkan_renderer_backend_initialize(struct renderer_backend* backend, const ch
         0.f, 0.f, .2f, 1.f,
         1.f,
         0);
+
+    // Create command buffers.
+    create_command_buffers(backend);
+    KINFO("Command buffer created.");
     
     KINFO("Vulkan renderer initialized successfully.");
     return TRUE;
 }
 
 void vulkan_renderer_backend_shutdown(struct renderer_backend* backend) {
+    for (u32 i = 0; i < context.swapchain.image_count; ++i) {
+        if (context.graphics_command_buffers[i].handle) {
+            vkFreeCommandBuffers(context.device.logical_device, context.device.graphics_command_pool, 1, &context.graphics_command_buffers[i].handle);
+            context.graphics_command_buffers[i].handle = 0;
+        }
+    }
+    darray_destroy(context.graphics_command_buffers);
+    context.graphics_command_buffers = 0;
+
     vulkan_renderpass_destroy(&context, &context.main_renderpass);
 
     KDEBUG("Destroying Vulkan swapchain...");
@@ -201,7 +218,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(
     return VK_FALSE;
 }
 
-i32 find_memory_index(u32 type_filter, u32 property_flags) {
+static i32 find_memory_index(u32 type_filter, u32 property_flags) {
     VkPhysicalDeviceMemoryProperties memory_properties;
     vkGetPhysicalDeviceMemoryProperties(context.device.physical_device, &memory_properties);
     for (u32 i = 0; i < memory_properties.memoryTypeCount; ++i) {
@@ -213,3 +230,18 @@ i32 find_memory_index(u32 type_filter, u32 property_flags) {
     KINFO("Unable to find suitable memory type.");
     return -1;
 }
+
+static void create_command_buffers(renderer_backend* backend) {
+    if (!context.graphics_command_buffers) {
+        context.graphics_command_buffers = darray_reserve(vulkan_command_buffer, context.swapchain.image_count);
+    }
+
+    for (u32 i = 0; i < context.swapchain.image_count; ++i) {
+        if (context.graphics_command_buffers[i].handle) {
+            vulkan_command_buffer_free(&context, context.device.graphics_command_pool, &context.graphics_command_buffers[i]);
+        }
+        kzero_memory(&context.graphics_command_buffers[i], sizeof(vulkan_command_buffer));
+        vulkan_command_buffer_allocate(&context, context.device.graphics_command_pool, TRUE, &context.graphics_command_buffers[i]);
+    }
+}
+
